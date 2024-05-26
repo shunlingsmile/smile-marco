@@ -1,7 +1,7 @@
-use proc_macro2::{Ident};
-use quote::{quote};
-use syn::{DeriveInput, Field, Fields, Generics, Token, Type, Visibility, WhereClause};
+use proc_macro2::Ident;
+use quote::quote;
 use syn::punctuated::Punctuated;
+use syn::{DeriveInput, Field, Fields, Generics, Token, Type, Visibility, WhereClause};
 
 use crate::TokenStream2;
 
@@ -16,14 +16,9 @@ pub struct FieldContext<'a> {
 
 impl<'a> FieldContext<'a> {
     pub fn new(ty: &'a Type, ident: Option<&'a Ident>, name: String) -> Self {
-        Self {
-            ty,
-            ident,
-            name,
-        }
+        Self { ty, ident, name }
     }
 }
-
 
 pub(crate) struct StructContext<'a> {
     pub vis: &'a Visibility,
@@ -45,7 +40,7 @@ impl<'a> StructContext<'a> {
         };
         let fields = match fields {
             Fields::Named(f) => &f.named,
-            _ => panic!("not a named struct")
+            _ => panic!("not a named struct"),
         };
         Self {
             vis,
@@ -58,7 +53,6 @@ impl<'a> StructContext<'a> {
     #[allow(unused_doc_comments)]
     /// Returns the block signature of impl
     pub fn impl_sign(&self) -> TokenStream2 {
-        let vis = self.vis;
         let ident = self.ident;
         let generics = self.generics;
         let where_case = &generics.where_clause;
@@ -69,7 +63,9 @@ impl<'a> StructContext<'a> {
     // This method deals specifically with the processing of exclude and name attributes
 
     pub fn handle_fields_exclude_and_name_attr(&self) -> Vec<FieldContext> {
-        let fields = self.fields.iter()
+        let fields = self
+            .fields
+            .iter()
             .filter(|f| {
                 for attr in &f.attrs {
                     if let syn::Meta::Path(ref path) = attr.meta {
@@ -90,17 +86,27 @@ impl<'a> StructContext<'a> {
                                     panic!("name is empty");
                                 } else {
                                     let new_attr_name = list.tokens.to_string();
-                                    if let None = new_attr_name.find(",") {
-                                        return FieldContext::new(&f.ty, f.ident.as_ref(), new_attr_name);
+                                    if !new_attr_name.contains(",") {
+                                        return FieldContext::new(
+                                            &f.ty,
+                                            f.ident.as_ref(),
+                                            new_attr_name,
+                                        );
                                     } else {
-                                        panic!("Only one value is required for the name on property")
+                                        panic!(
+                                            "Only one value is required for the name on property"
+                                        )
                                     }
                                 }
                             }
                         }
                     }
                 }
-                let attr_name = f.ident.as_ref().expect("attr cannot be without signatures").to_string();
+                let attr_name = f
+                    .ident
+                    .as_ref()
+                    .expect("attr cannot be without signatures")
+                    .to_string();
                 FieldContext::new(&f.ty, f.ident.as_ref(), attr_name)
             })
             .collect::<Vec<_>>();
@@ -109,21 +115,15 @@ impl<'a> StructContext<'a> {
 }
 
 pub(crate) mod token_tree_utils {
-    use proc_macro2::TokenTree;
     use crate::TokenStream1;
+    use proc_macro2::TokenTree;
 
     #[inline]
     pub(crate) fn punct_eq<'a>(punct: Option<&'a TokenTree>, eq: &'a str) -> bool {
-        match punct {
-            Some(p) => {
-                if let TokenTree::Punct(ref v) = p {
-                    v.to_string().eq(eq)
-                } else {
-                    false
-                }
-            }
-            _ => false,
+        if let Some(TokenTree::Punct(ref v)) = punct {
+            return v.to_string().eq(eq);
         }
+        false
     }
 
     #[inline]

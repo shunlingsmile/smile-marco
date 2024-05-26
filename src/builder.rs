@@ -1,14 +1,13 @@
+use crate::util::StructContext;
+use crate::TokenStream1;
 use quote::{format_ident, quote};
 use syn::DeriveInput;
-use syn::spanned::Spanned;
-use crate::TokenStream1;
-use crate::util::StructContext;
 
 pub(crate) fn gen_ast(input: &DeriveInput) -> TokenStream1 {
-    let struct_name = format_ident!("{}Builder",&input.ident);
+    let struct_name = format_ident!("{}Builder", &input.ident);
     let source_struct_name = &input.ident;
 
-    let context = StructContext::new(&input);
+    let context = StructContext::new(input);
     let vis = context.vis;
     let generics = context.generics;
     let where_case = context.where_case;
@@ -16,16 +15,18 @@ pub(crate) fn gen_ast(input: &DeriveInput) -> TokenStream1 {
 
     let fields = context.fields;
 
-    let field_idents = fields.iter().map(|f| {
-        f.ident.as_ref()
-    }).collect::<Vec<_>>();
-    let field_tys = fields.iter().map(|f| {
-        &f.ty
-    }).collect::<Vec<_>>();
-    let field_expects = fields.iter().map(|f| {
-        format!("{} field is not set in {} struct", f.ident.as_ref().unwrap(), source_struct_name)
-    }).collect::<Vec<_>>();
-
+    let field_idents = fields.iter().map(|f| f.ident.as_ref()).collect::<Vec<_>>();
+    let field_tys = fields.iter().map(|f| &f.ty).collect::<Vec<_>>();
+    let field_expects = fields
+        .iter()
+        .map(|f| {
+            format!(
+                "{} field is not set in {} struct",
+                f.ident.as_ref().unwrap(),
+                source_struct_name
+            )
+        })
+        .collect::<Vec<_>>();
 
     let ast = quote! {
         #vis struct #struct_name #generics #where_case {

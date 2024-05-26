@@ -1,4 +1,4 @@
-use smile_marco::{ Wither};
+use smile_marco::Wither;
 
 #[derive(Wither)]
 struct Book {

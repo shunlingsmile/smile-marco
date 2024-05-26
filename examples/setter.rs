@@ -17,5 +17,5 @@ fn main() {
     };
 
     book.set_cost(200);
-    assert_eq!(book.get_cost(), &200);
+    assert_eq!(book.price, 200);
 }

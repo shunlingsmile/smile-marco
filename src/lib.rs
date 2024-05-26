@@ -3,14 +3,14 @@
 //! Convenient for daily development.
 //! ```toml
 //! [dependencies]
-//! smile-marco = { version = "0.1.0", features = ["full"] }
+//! smile-marco = { version = "1.0.0", features = ["full"] }
 //! #or
-//! smile-marco = { version = "0.1.0"}
+//! smile-marco = { version = "1.0.0"}
 //! ```
 //! If needed, use partial macros.
 //! ```toml
 //! [dependencies]
-//! smile-marco = { version = "0.1.0", features = ["getter","setter"] }
+//! smile-marco = { version = "1.0.0", features = ["getter","setter"] }
 //! ```
 //! # Example
 //! ```rust
@@ -24,31 +24,30 @@
 //!     author: String,
 //! }
 //!
-//! fn main() {
-//!     let book = Book {
-//!         title: "Rust Programming".to_string(),
-//!         price: 100,
-//!         author: "rust".to_string(),
-//!     };
-//!     assert_eq!(book.get_title(), &"Rust Programming".to_string());
-//!     assert_eq!(book.get_cost(), &100);
+//!
+//!  let book = Book {
+//!  title: "Rust Programming".to_string(),
+//!  price: 100,
+//!  author: "rust".to_string(),
+//!  };
+//!  assert_eq!(book.get_title(), &"Rust Programming".to_string());
+//!  assert_eq!(book.get_cost(), &100);
 //! }
 //! ```
-#[cfg(feature = "getter")]
-mod getter;
-mod util;
-#[cfg(feature = "setter")]
-mod setter;
-#[cfg(feature = "wither")]
-mod wither;
 #[cfg(feature = "builder")]
 mod builder;
 #[cfg(feature = "full")]
 mod data;
+#[cfg(feature = "getter")]
+mod getter;
+#[cfg(feature = "setter")]
+mod setter;
+mod util;
+#[cfg(feature = "wither")]
+mod wither;
 
 type TokenStream1 = proc_macro::TokenStream;
 type TokenStream2 = proc_macro2::TokenStream;
-
 
 /// The Getter macro is used to quickly generate the get method
 ///
@@ -128,7 +127,6 @@ pub fn getter_derive(input: TokenStream1) -> TokenStream1 {
 /// }
 ///
 /// ```
-
 
 #[cfg(feature = "setter")]
 #[proc_macro_derive(Setter, attributes(exclude, name))]
@@ -262,7 +260,6 @@ pub fn builder_derive(input: TokenStream1) -> TokenStream1 {
     builder::gen_ast(&input)
 }
 
-
 /// data macro
 /// ```
 /// use smile_marco::data;
@@ -288,4 +285,3 @@ pub fn builder_derive(input: TokenStream1) -> TokenStream1 {
 pub fn data(attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
     data::ast_gen(attr, item)
 }
-
